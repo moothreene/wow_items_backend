@@ -1,5 +1,5 @@
 const { MongoClient } = require("mongodb");
-const uri = "mongodb://0.0.0.0:27017";
+const uri = "mongodb+srv://WowItemDataApi:kogqJtQAjaI0UkDb@wowitemdata.ttre1pw.mongodb.net/";
 const classes_data = require("./classes")
 
 const client = new MongoClient(uri);
@@ -29,9 +29,9 @@ async function getWowData(query){
     }
     try {
         if (filter!={}){
-            const dataset = await client.db('local').collection('wowData').aggregate([{$match:filter},
+            const dataset = await client.db('WowItemData').collection('wowData').aggregate([{$match:filter},
                                                                                     {$sample:{size:5}}
-            ]).toArray();//find(filter).limit(10).toArray();
+            ]).toArray();
             return (dataset);
         }
         
