@@ -29,7 +29,6 @@ async function getWowData(query){
     }
     try {
         if (filter!={}){
-            console.log(filter);
             const dataset = await client.db('local').collection('wowData').aggregate([{$match:filter},
                                                                                     {$sample:{size:5}}
             ]).toArray();//find(filter).limit(10).toArray();
