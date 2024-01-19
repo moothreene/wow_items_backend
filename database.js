@@ -27,12 +27,14 @@ async function getWowData(query){
     if(query.level!==undefined){
         filter["required_level"] = {"$lt":(+query.level+1)};
     }
+    if(query.id!==undefined){
+        filter["id"] = +query.id;
+    }
     try {
         if (filter!={}){
-            const dataset = await client.db('WowItemData').collection('wowData').aggregate([{$match:filter},
-                                                                                    {$sample:{size:5}}
-            ]).toArray();
-            return (dataset);
+            console.log(filter);
+            const dataset = await client.db('WowItemData').collection('wowData').find(filter).toArray();
+            return (dataset[0]);
         }
         
         
