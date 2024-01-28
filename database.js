@@ -6,7 +6,7 @@ const client = new MongoClient(uri);
 client.connect();
 
 async function getWowData(query){
-    let filter = {}
+    let filter = {};
     if(query.class_name!=undefined){
         let wearable = [];
         let class_data = classes_data[query.class_name]
@@ -28,13 +28,14 @@ async function getWowData(query){
         filter["required_level"] = {"$lt":(+query.level+1)};
     }
     if(query.id!==undefined){
-        filter["id"] = +query.id;
+        filter = {"id":parseInt(query.id)};
+        const dataset = await client.db('WowItemData').collection('wowData').find(filter).toArray();
+        return (dataset[0]);
     }
     try {
         if (filter!={}){
-            console.log(filter);
             const dataset = await client.db('WowItemData').collection('wowData').find(filter).toArray();
-            return (dataset[0]);
+            return (dataset);
         }
         
         
