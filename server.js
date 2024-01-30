@@ -1,9 +1,11 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const database = require('./database');
 const fs = require('fs');
 
+app.use(cors());
 
 app.get("/api", async (req, res)=>{
   try {
