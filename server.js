@@ -4,8 +4,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const database = require('./database');
 const fs = require('fs');
+
 const mongoose = require('mongoose');
 const User = require("./models/User");
+const Post = require("./models/Post");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
@@ -13,9 +15,14 @@ const cookieParser = require("cookie-parser");
 const salt = bcrypt.genSaltSync(10);
 const secret = "ashkhkshatosjkv";
 
+const multer = require("multer");
+const upload = multer({dest:"uploads/"});
+
 app.use(cors({credentials:true,origin:"http://localhost:3000"}));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(__dirname + "/uploads"));
+app.use("/images", express.static(__dirname+"/images"));
 
 mongoose.connect("mongodb+srv://WowItemDataApi:kogqJtQAjaI0UkDb@wowitemdata.ttre1pw.mongodb.net/WowItemData");
 
@@ -23,17 +30,6 @@ app.get("/api", async (req, res)=>{
   try {
       const items = await database.getWowData(req.query);
       res.json(items);
-    } catch (error) {
-      console.error(error);
-      res.status(500).send("Server Error");
-    }
-});
-
-app.get("/img", async (req, res)=>{
-  try {
-    if(fs.existsSync(`images/${req.query.src}`)){
-      res.sendFile(`images/${req.query.src}`,{ root : __dirname});
-    }
     } catch (error) {
       console.error(error);
       res.status(500).send("Server Error");
@@ -84,6 +80,37 @@ app.get("/profile", (req,res)=>{
 app.post("/logout", (req,res)=>{
   res.cookie("token","").json("ok");
 });
+
+app.post("/post",upload.single("file"), async (req,res)=>{
+  const {originalname, path} = req.file;
+  const parts = originalname.split(".");
+  const ext = parts[parts.length - 1];
+  const newPath = `${path}.${ext}`;
+  fs.renameSync(path, newPath);
+  res.json(req.file);
+
+  const {token} = req.cookies;
+  jwt.verify(token,secret,{},async (error,data)=>{
+    if(error) throw error
+    const {title, summary, content} = req.body;
+    const PostDoc = await Post.create({
+    title,
+    summary,
+    content,
+    cover:newPath,
+    author:data.id,
+  })
+  });
+  
+});
+
+app.get("/post", async(req,res)=>{
+  const posts = await Post
+    .find()
+    .populate("author",["username"])
+    .sort({createdAt:-1});
+  res.json(posts);
+})
 
 app.listen(PORT,()=>{
     console.log(`running on port ${PORT}`);
