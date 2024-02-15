@@ -93,7 +93,7 @@ app.post("/post",upload.single("file"), async (req,res)=>{
   jwt.verify(token,secret,{},async (error,data)=>{
     if(error) throw error
     const {title, summary, content} = req.body;
-    const PostDoc = await Post.create({
+    const postDoc = await Post.create({
     title,
     summary,
     content,
@@ -112,6 +112,11 @@ app.get("/post", async(req,res)=>{
   res.json(posts);
 })
 
+app.get("/post/:id", async(req,res)=>{
+  const {id} = req.params;
+  const postDoc = await Post.findById(id).populate("author",["username"]);
+  res.json(postDoc);
+})
 app.listen(PORT,()=>{
     console.log(`running on port ${PORT}`);
 })
