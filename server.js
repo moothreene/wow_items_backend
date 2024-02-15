@@ -117,6 +117,38 @@ app.get("/post/:id", async(req,res)=>{
   const postDoc = await Post.findById(id).populate("author",["username"]);
   res.json(postDoc);
 })
+
+app.put("/post", upload.single("file"), async(req,res)=>{
+  let newPath = null;
+  if(req.file){
+    const {originalname, path} = req.file;
+    const parts = originalname.split(".");
+    const ext = parts[parts.length - 1];
+    newPath = `${path}.${ext}`;
+    fs.renameSync(path, newPath);
+  }
+
+  const {token} = req.cookies;
+  jwt.verify(token,secret,{}, async(error,data)=>{
+    if(error) throw error
+    const {title, summary, content, id} = req.body;
+    const postDoc = await Post.findById(id);
+    const isAuthor = JSON.stringify(postDoc.author)  === JSON.stringify(data.id);
+    if(!isAuthor){
+      res.status(400).json("you are not the author")
+      throw "you are not the author"
+    }
+    const updateRes = await Post.findByIdAndUpdate(id,{
+      title, 
+      summary, 
+      content,
+      cover:newPath?newPath:postDoc.cover,
+    });
+    res.json(updateRes);
+  });
+
+})
+
 app.listen(PORT,()=>{
     console.log(`running on port ${PORT}`);
 })
