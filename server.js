@@ -149,6 +149,22 @@ app.put("/post", upload.single("file"), async(req,res)=>{
 
 })
 
+app.put("/delete/:id", async(req,res)=>{
+  const {token} = req.cookies;
+  const {id} = req.params;
+  const postDoc = await Post.findById(id);
+  jwt.verify(token,secret,{}, async(error,data)=>{
+    if(error) throw error
+    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(data.id);
+    if(!isAuthor){
+      res.status(400).json("you are not the author")
+      throw "you are not the author"
+    }
+    const deleteRes = await Post.findByIdAndDelete(id);
+    res.json(deleteRes);
+  });
+})
+
 app.listen(PORT,()=>{
     console.log(`running on port ${PORT}`);
 })
