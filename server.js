@@ -18,7 +18,7 @@ const secret = "ashkhkshatosjkv";
 const multer = require("multer");
 const upload = multer({dest:"uploads/"});
 
-app.use(cors({credentials:true,origin:"http://localhost:3000"}));
+app.use(cors({credentials:true,origin:"https://wow-item-frontend-379b28d1a268.herokuapp.com"}));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static(__dirname + "/uploads"));
