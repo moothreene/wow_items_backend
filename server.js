@@ -160,6 +160,12 @@ app.put("/delete/:id", async(req,res)=>{
       res.status(400).json("you are not the author")
       throw "you are not the author"
     }
+    fs.unlink(postDoc.cover, err=>{
+      if(err) console.log(err);
+      else{
+        console.log(postDoc.cover+" deleted successfully");
+      }
+    })
     const deleteRes = await Post.findByIdAndDelete(id);
     res.json(deleteRes);
   });
