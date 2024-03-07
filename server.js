@@ -23,8 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static(__dirname + "/uploads"));
 app.use("/images", express.static(__dirname+"/images"));
-
-mongoose.connect("mongodb+srv://WowItemDataApi:kogqJtQAjaI0UkDb@wowitemdata.ttre1pw.mongodb.net/WowItemData");
+mongoose.connect(process.env.DATABASE_URL);
 
 app.get("/api", async (req, res)=>{
   try {
